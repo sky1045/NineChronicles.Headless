@@ -1,0 +1,44 @@
+name: test docker
+
+on:
+  push:
+    branches:
+      - main
+      - rc-*
+      - 9c-main
+      - development
+      - previewnet
+      - qa-*
+      - 2022q3-worldboss
+    tags:
+      - v*
+  workflow_dispatch:
+    inputs:
+      imageTag:
+        description: 'Custom docker image tag if needed'
+        default: ''
+
+env:
+  DOCKER_REPO: planetariumhq/ninechronicles-headless
+
+jobs:
+  test:
+    if: ${{ github.ref_type == 'tag' || github.events.inputs.imageTag != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: push git tagged version
+        run: |
+          docker pull $DOCKER_REPO:git-${{ github.sha }}-amd64
+          if [[ -z ${{ github.events.inputs.imageTag }} ]]; then
+            export IMAGE_TAG=${{ github.events.inputs.imageTag }}
+          else
+            export IMAGE_TAG=${{ github.ref_name }}
+          fi
+
+          docker tag \
+            $DOCKER_REPO:git-${{ github.sha }}-amd64 \
+            $DOCKER_REPO:$IMAGE_TAG-amd64
+          docker pull $DOCKER_REPO:git-${{ github.sha }}-arm64v8
+          docker tag \
+            $DOCKER_REPO:git-${{ github.sha }}-arm64v8 \
+            $DOCKER_REPO:$IMAGE_TAG-arm64v8
