@@ -22,15 +22,28 @@ env:
   DOCKER_REPO: planetariumhq/ninechronicles-headless
 
 jobs:
+  print:
+    runs-on: ubuntu-latest
+    steps:
+      - name: print input
+        run: |
+          set -ex
+          echo ${{ github.event.inputs.imageTag }}
+          if [[ ${{ github.event.inputs.imageTag != '' }} ]]; then
+            echo "not empty"
+          else
+            echo "empty"
+          fi
+
   test:
-    if: ${{ github.ref_type == 'tag' || github.events.inputs.imageTag != '' }}
+    if: github.ref_type == 'tag' || github.event.inputs.imageTag != ''
     runs-on: ubuntu-latest
     steps:
       - name: push git tagged version
         run: |
           docker pull $DOCKER_REPO:git-${{ github.sha }}-amd64
-          if [[ -z ${{ github.events.inputs.imageTag }} ]]; then
-            export IMAGE_TAG=${{ github.events.inputs.imageTag }}
+          if [[ -z ${{ github.event.inputs.imageTag }} ]]; then
+            export IMAGE_TAG=${{ github.event.inputs.imageTag }}
           else
             export IMAGE_TAG=${{ github.ref_name }}
           fi
