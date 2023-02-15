@@ -81,7 +81,7 @@ namespace NineChronicles.Headless
                 try
                 {
                     tx.Validate();
-                    Log.Debug("PutTransaction: (nonce: {nonce}, id: {id})", tx.Nonce, tx.Id);
+                    Log.Information("PutTransaction: (nonce: {nonce}, id: {id})", tx.Nonce, tx.Id);
                     Log.Debug("StagedTransactions: {txIds}", string.Join(", ", _blockChain.GetStagedTransactionIds()));
                     _blockChain.StageTransaction(tx);
                     _swarm.BroadcastTxs(new[] { tx });
@@ -179,7 +179,7 @@ namespace NineChronicles.Headless
         {
             var address = new Address(addressBytes);
             var nonce = _blockChain.GetNextTxNonce(address);
-            Log.Debug("GetNextTxNonce: {nonce}", nonce);
+            Log.Information("GetNextTxNonce: {nonce}", nonce);
             return UnaryResult(nonce);
         }
 
@@ -193,7 +193,7 @@ namespace NineChronicles.Headless
             {
                 _context.AddressesToSubscribe =
                     addressesBytes.Select(ba => new Address(ba)).ToImmutableHashSet();
-                Log.Debug(
+                Log.Information(
                     "Subscribed addresses: {addresses}",
                     string.Join(", ", _context.AddressesToSubscribe));
             }
@@ -204,7 +204,7 @@ namespace NineChronicles.Headless
         {
             var id = new TxId(txidBytes);
             var isStaged = _blockChain.GetStagedTransactionIds().Contains(id);
-            Log.Debug(
+            Log.Information(
                 "Transaction {id} is {1}.",
                 id,
                 isStaged ? "staged" : "not staged");
@@ -213,7 +213,7 @@ namespace NineChronicles.Headless
 
         public UnaryResult<bool> ReportException(string code, string message)
         {
-            Log.Debug(
+            Log.Information(
                 $"Reported exception from Unity player. " +
                 $"(code: {code}, message: {message})"
             );
