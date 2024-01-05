@@ -159,7 +159,10 @@ namespace NineChronicles.Headless
                             options.UnhandledExceptionDelegate = context =>
                             {
                                 Log.Error(context.Exception.ToString());
-                                Log.Error(context.ErrorMessage);
+                                if (context.ErrorMessage != null)
+                                {
+                                    Log.Error(context.ErrorMessage);
+                                }
 
                                 context.Exception.Data["exception"] = context.Exception.GetType().ToString();
                                 context.Exception.Data["message"] = context.Exception.Message;

@@ -37,12 +37,14 @@ using Libplanet.Types.Blocks;
 using Libplanet.Headless;
 using Libplanet.Headless.Hosting;
 using Libplanet.Net.Transports;
+using Microsoft.Extensions.Logging;
 using Nekoyume.Action.Loader;
 using OpenTelemetry;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Serilog.Sinks.OpenTelemetry;
 
 namespace NineChronicles.Headless.Executable
 {
@@ -243,6 +245,7 @@ namespace NineChronicles.Headless.Executable
             var configuration = configurationBuilder.Build();
             var loggerConf = new LoggerConfiguration()
                 .ReadFrom.Configuration(configuration)
+                .Enrich.With(new OpenTelemetryEnricher())
                 .WriteTo.File(
                     new RenderedCompactJsonFormatter(),
                     path: Environment.GetEnvironmentVariable("JSON_LOG_PATH") ?? "./logs/remote-headless_9c-network_remote-headless.json",
