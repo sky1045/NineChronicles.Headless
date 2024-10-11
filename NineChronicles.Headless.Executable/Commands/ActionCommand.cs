@@ -14,6 +14,7 @@ using Libplanet.Types.Assets;
 using Nekoyume.Action;
 using Nekoyume.Model;
 using NineChronicles.Headless.Executable.IO;
+using Validator = Libplanet.Types.Consensus.Validator;
 
 namespace NineChronicles.Headless.Executable.Commands
 {
@@ -228,6 +229,46 @@ namespace NineChronicles.Headless.Executable.Commands
                     new[]
                     {
                         (Text) nameof(Nekoyume.Action.MigrateMonsterCollection),
+                        action.PlainValue
+                    }
+                ));
+                string encoded = Convert.ToBase64String(raw);
+                if (filePath is null)
+                {
+                    _console.Out.Write(encoded);
+                }
+                else
+                {
+                    File.WriteAllText(filePath, encoded);
+                }
+
+                return 0;
+            }
+            catch (Exception e)
+            {
+                _console.Error.WriteLine(e);
+                return -1;
+            }
+        }
+
+        [Command(Description = "Create ValidatorSetOperate.Remove action")]
+        public int RemoveValidatorSetOperate(
+            [Argument("OPERAND-PRIVATE-KEY", Description = "A hex-encoded address.")]
+            string operandPrivateKey,
+            [Argument("PATH", Description = "A file path of base64 encoded action.")]
+            string? filePath = null
+        )
+        {
+            try
+            {
+                PrivateKey pk = new PrivateKey(operandPrivateKey);
+                Validator validator = new Validator(pk.PublicKey, 0);
+                Nekoyume.Action.ValidatorSetOperate action = ValidatorSetOperate.Remove(validator);
+
+                byte[] raw = Codec.Encode(new List(
+                    new[]
+                    {
+                        (Text) nameof(ValidatorSetOperate),
                         action.PlainValue
                     }
                 ));
